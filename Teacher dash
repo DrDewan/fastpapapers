@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Teacher Dashboard - FastPapers</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,Arial,sans-serif}
+body{background:#070b12;color:#f8fafc}
+.topbar{position:sticky;top:0;z-index:50;background:#111827;border-bottom:1px solid #263143;padding:10px 22px;display:flex;justify-content:space-between;align-items:center}
+.page{max-width:1850px;margin:auto;padding:22px}
+h1{font-size:25px;margin-bottom:4px}
+.muted{color:#94a3b8;font-size:13px}
+.btn{background:#2563eb;color:white;border:none;border-radius:8px;padding:7px 10px;font-size:12px;font-weight:700;cursor:pointer}
+.btn.secondary{background:#1f2937;border:1px solid #374151}
+.header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px}
+.summary{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
+.card{background:#0f172a;border:1px solid #1e293b;border-radius:13px;padding:13px}
+.card-title{color:#94a3b8;font-size:12px;margin-bottom:5px}
+.card-value{font-size:23px;font-weight:800}
+.card-note{font-size:11px;color:#94a3b8;margin-top:3px}
+.layout{display:grid;grid-template-columns:1.25fr 430px;gap:16px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.filter{background:#111827;color:#d1d5db;border:1px solid #334155;border-radius:999px;padding:6px 9px;font-size:12px;cursor:pointer}
+.filter.active{background:#2563eb;border-color:#2563eb;color:white}
+.table-wrap{background:#0f172a;border:1px solid #1e293b;border-radius:14px;overflow:auto;max-height:690px}
+table{border-collapse:collapse;width:100%;min-width:1160px}
+th,td{border-bottom:1px solid #1e293b;padding:9px 10px;text-align:left;font-size:12px;vertical-align:middle}
+th{position:sticky;top:0;background:#111827;z-index:5;color:#cbd5e1;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+tr:hover{background:#111827;cursor:pointer}
+.student-name{font-weight:800;font-size:13px}
+.badge{display:inline-block;border-radius:999px;padding:3px 7px;font-size:10px;font-weight:800}
+.green{background:rgba(34,197,94,.2);color:#86efac}
+.yellow{background:rgba(234,179,8,.2);color:#fde68a}
+.red{background:rgba(239,68,68,.22);color:#fca5a5}
+.blue{background:rgba(59,130,246,.2);color:#93c5fd}
+.grey{background:rgba(148,163,184,.14);color:#cbd5e1}
+
+.flags{display:flex;gap:4px;flex-wrap:wrap}
+.flag{font-size:10px;border-radius:6px;padding:3px 5px;font-weight:800}
+.flag-risk{background:rgba(239,68,68,.22);color:#fca5a5}
+.flag-revise{background:rgba(59,130,246,.2);color:#93c5fd}
+.flag-low{background:rgba(234,179,8,.2);color:#fde68a}
+.flag-absent{background:rgba(148,163,184,.14);color:#cbd5e1}
+.flag-top{background:rgba(34,197,94,.2);color:#86efac}
+
+.progressbar{height:7px;background:#1e293b;border-radius:999px;overflow:hidden}
+.progressbar span{display:block;height:100%;background:#22c55e}
+
+.mini-heatmap{display:grid;grid-template-columns:repeat(14,10px);gap:3px;align-items:center}
+.mini-box{width:10px;height:10px;border-radius:2px;display:block}
+.mini-box.green{background:#22c55e}
+.mini-box.yellow{background:#eab308}
+.mini-box.red{background:#ef4444}
+.mini-box.blue{background:#3b82f6}
+.mini-box.grey{background:#64748b}
+
+.heatmap-label{font-size:10px;color:#94a3b8;margin-top:5px}
+
+.side{display:flex;flex-direction:column;gap:12px}
+.focus-header{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px}
+.focus-name{font-size:20px;font-weight:800}
+.grid-mini{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.metric{background:#111827;border:1px solid #243044;border-radius:10px;padding:9px}
+.metric strong{display:block;font-size:18px;margin-top:3px}
+.list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.list li{background:#111827;border:1px solid #243044;border-radius:9px;padding:9px;font-size:12px}
+.topic-row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.topic-name{font-weight:700}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.chip{font-size:10.5px;border-radius:7px;padding:5px 6px;font-weight:700}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.section-title{font-size:14px;font-weight:800;margin-bottom:8px}
+.alert-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:#94a3b8;margin-bottom:10px}
+.legend span{display:flex;align-items:center;gap:5px}
+
+@media(max-width:1200px){
+  .summary{grid-template-columns:repeat(3,1fr)}
+  .layout{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .summary{grid-template-columns:1fr}
+  .header{flex-direction:column;align-items:flex-start;gap:8px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div><strong>Teacher Dashboard</strong> <span class="muted">· Batch performance overview</span></div>
+  <div>
+    <button class="btn secondary">Create Test</button>
+    <button class="btn">Send Announcement</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="header">
+    <div>
+      <h1>AS Physics 9702 — Sunday/Tuesday Batch</h1>
+      <div class="muted">18 students · Current topic: Kirchhoff’s Laws · Next: Internal Resistance</div>
+    </div>
+    <div class="muted">Last sync: Today, 11:20 AM</div>
+  </div>
+
+  <section class="summary">
+    <div class="card"><div class="card-title">Batch Average</div><div class="card-value">66%</div><div class="card-note">+3% over last 14 days</div></div>
+    <div class="card"><div class="card-title">Students at Risk</div><div class="card-value">5</div><div class="card-note">below 60% effective score</div></div>
+    <div class="card"><div class="card-title">Needs Revision</div><div class="card-value">9</div><div class="card-note">topic decay triggered</div></div>
+    <div class="card"><div class="card-title">Low Confidence Data</div><div class="card-value">4</div><div class="card-note">not enough attempts</div></div>
+    <div class="card"><div class="card-title">Avg Attendance</div><div class="card-value">84%</div><div class="card-note">display only, not score</div></div>
+    <div class="card"><div class="card-title">Upcoming Test</div><div class="card-value">Thu</div><div class="card-note">D.C. Circuits · 20 MCQs</div></div>
+  </section>
+
+  <div class="layout">
+
+    <main>
+      <div class="filters">
+        <button class="filter active">All Students</button>
+        <button class="filter">At Risk</button>
+        <button class="filter">Weak in Current Topic</button>
+        <button class="filter">Needs Revision</button>
+        <button class="filter">Low Confidence</button>
+        <button class="filter">Inactive</button>
+        <button class="filter">Top Performers</button>
+      </div>
+
+      <div class="legend">
+        <span><i class="mini-box green"></i>Strong</span>
+        <span><i class="mini-box yellow"></i>Moderate</span>
+        <span><i class="mini-box red"></i>Weak</span>
+        <span><i class="mini-box blue"></i>Needs Revision</span>
+        <span><i class="mini-box grey"></i>Low/No Data</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Score</th>
+              <th>Grade</th>
+              <th>Topic + Skill Heatmap</th>
+              <th>Practice</th>
+              <th>Test</th>
+              <th>AQ/Paper</th>
+              <th>Current Topic</th>
+              <th>Weakest Area</th>
+              <th>Coverage</th>
+              <th>Flags</th>
+            </tr>
+          </thead>
+          <tbody id="studentRows"></tbody>
+        </table>
+      </div>
+    </main>
+
+    <aside class="side">
+
+      <div class="card">
+        <div class="focus-header">
+          <div>
+            <div class="focus-name" id="focusName">Ayaan Rahman</div>
+            <div class="muted" id="focusMeta">Predicted B · Medium confidence</div>
+          </div>
+          <span class="badge red" id="focusStatus">At Risk</span>
+        </div>
+
+        <div class="grid-mini">
+          <div class="metric"><span class="muted">Effective Score</span><strong id="focusScore">58%</strong></div>
+          <div class="metric"><span class="muted">Practice</span><strong id="focusPractice">62%</strong></div>
+          <div class="metric"><span class="muted">Test</span><strong id="focusTest">55%</strong></div>
+          <div class="metric"><span class="muted">AQ/Paper</span><strong id="focusPaper">51%</strong></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Selected Student Heatmap</div>
+        <div class="mini-heatmap" id="focusHeatmap"></div>
+        <div class="heatmap-label">PQ · Kin · Dyn · Forces · Energy · Elec · DC · Waves · Super · Calc · Graph · Units · Concepts · AQ</div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Student Flags</div>
+        <ul class="list" id="focusFlags">
+          <li>Weak in D.C. Circuits</li>
+          <li>Internal Resistance not revised in 21 days</li>
+          <li>Low AQ explanation quality</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Topic/Subtopic Focus</div>
+        <ul class="list" id="focusTopics">
+          <li>
+            <div class="topic-row"><span class="topic-name">D.C. Circuits</span><span class="badge red">49%</span></div>
+            <div class="chips">
+              <span class="chip red">Internal R 41%</span>
+              <span class="chip red">Kirchhoff 45%</span>
+              <span class="chip yellow">Series/Parallel 70%</span>
+            </div>
+          </li>
+          <li>
+            <div class="topic-row"><span class="topic-name">Electricity</span><span class="badge yellow">62%</span></div>
+            <div class="chips">
+              <span class="chip red">I-V Graphs 49%</span>
+              <span class="chip yellow">Resistance 62%</span>
+              <span class="chip green">Current 75%</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Recommended Teacher Actions</div>
+        <ul class="list">
+          <li class="alert-row"><span>Assign 10 MCQs: Internal Resistance</span><button class="btn">Assign</button></li>
+          <li class="alert-row"><span>Send guardian update</span><button class="btn secondary">Send</button></li>
+          <li class="alert-row"><span>Add to revision group</span><button class="btn secondary">Add</button></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Batch Weak Areas</div>
+        <ul class="list">
+          <li>Internal Resistance <div class="card-note">11 / 18 students weak</div></li>
+          <li>Kirchhoff’s Laws <div class="card-note">9 / 18 students weak</div></li>
+          <li>Stationary Waves <div class="card-note">7 / 18 students weak</div></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Quick Actions</div>
+        <div class="actions">
+          <button class="btn">Create Class Test</button>
+          <button class="btn secondary">Set Study Flow</button>
+          <button class="btn secondary">Mark Attendance</button>
+          <button class="btn secondary">Export Report</button>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+</div>
+
+<script>
+const heatmapLabels = [
+  "Physical Quantities","Kinematics","Dynamics","Forces","Work/Energy","Electricity",
+  "D.C. Circuits","Waves","Superposition","Calculation","Graphs","Units","Concepts","AQ Writing"
+];
+
+const students = [
+  {name:"Ayaan Rahman", score:58, grade:"B", practice:62, test:55, paper:51, current:"Kirchhoff 45%", weak:"Internal R", coverage:26, flags:["Risk","Revise","AQ"], heat:["yellow","yellow","yellow","green","yellow","red","red","green","yellow","yellow","red","yellow","red","red"]},
+  {name:"Sarah Zaheen", score:74, grade:"A", practice:78, test:72, paper:70, current:"Kirchhoff 68%", weak:"Graphs", coverage:38, flags:["Revise"], heat:["green","green","yellow","green","green","yellow","yellow","green","yellow","yellow","red","green","yellow","yellow"]},
+  {name:"Tehzeeb Tahsin", score:49, grade:"C", practice:52, test:44, paper:47, current:"Kirchhoff 39%", weak:"D.C. Circuits", coverage:19, flags:["Risk","Low Data"], heat:["yellow","red","red","yellow","red","red","red","yellow","grey","red","red","yellow","red","red"]},
+  {name:"Mishkat Farzad", score:81, grade:"A*", practice:84, test:80, paper:78, current:"Kirchhoff 76%", weak:"AQ Diagrams", coverage:44, flags:["Top"], heat:["green","green","green","green","green","green","yellow","green","green","green","yellow","green","green","yellow"]},
+  {name:"Taqiya Ayesha", score:63, grade:"B", practice:67, test:60, paper:58, current:"Kirchhoff 52%", weak:"I-V Graphs", coverage:29, flags:["Revise"], heat:["green","yellow","yellow","yellow","yellow","red","red","yellow","yellow","yellow","red","green","yellow","red"]},
+  {name:"Sabit Ishmum", score:57, grade:"C", practice:60, test:51, paper:55, current:"Kirchhoff 46%", weak:"Internal R", coverage:24, flags:["Risk","Revise"], heat:["yellow","yellow","red","yellow","yellow","red","red","yellow","grey","red","yellow","yellow","red","red"]},
+  {name:"Fabian Khan", score:69, grade:"B", practice:71, test:68, paper:64, current:"Kirchhoff 61%", weak:"Momentum", coverage:33, flags:[], heat:["green","green","red","yellow","green","yellow","yellow","green","yellow","yellow","yellow","green","yellow","yellow"]},
+  {name:"Farah Deena", score:76, grade:"A", practice:80, test:74, paper:72, current:"Kirchhoff 70%", weak:"Stationary", coverage:41, flags:["Top"], heat:["green","green","green","green","yellow","green","yellow","green","red","green","yellow","green","green","yellow"]},
+  {name:"Inaya Mustafa", score:54, grade:"C", practice:58, test:49, paper:50, current:"Kirchhoff 42%", weak:"Circuits", coverage:21, flags:["Risk","Inactive"], heat:["yellow","red","yellow","yellow","red","red","red","yellow","grey","red","red","yellow","red","red"]},
+  {name:"Ahyam Rahman", score:61, grade:"B", practice:64, test:59, paper:56, current:"Kirchhoff 55%", weak:"Power", coverage:28, flags:["Low Data"], heat:["yellow","yellow","yellow","green","red","yellow","red","green","yellow","red","yellow","yellow","yellow","red"]}
+];
+
+function badgeForScore(score){
+  if(score>=75)return "green";
+  if(score>=60)return "yellow";
+  return "red";
+}
+
+function flagClass(flag){
+  if(flag==="Risk")return "flag-risk";
+  if(flag==="Revise")return "flag-revise";
+  if(flag==="Low Data")return "flag-low";
+  if(flag==="Inactive")return "flag-absent";
+  if(flag==="Top")return "flag-top";
+  if(flag==="AQ")return "flag-low";
+  return "flag-absent";
+}
+
+function heatmapHTML(arr){
+  return `
+    <div class="mini-heatmap">
+      ${arr.map((c,i)=>`<span class="mini-box ${c}" title="${heatmapLabels[i]}: ${c}"></span>`).join("")}
+    </div>
+    <div class="heatmap-label">PQ · Kin · Dyn · Forces · Energy · Elec · DC · Waves · Super · Skills</div>
+  `;
+}
+
+const tbody=document.getElementById("studentRows");
+
+students.forEach((s)=>{
+  const tr=document.createElement("tr");
+  tr.onclick=()=>focusStudent(s);
+  tr.innerHTML=`
+    <td><div class="student-name">${s.name}</div><div class="muted">AS Physics · Batch A</div></td>
+    <td><span class="badge ${badgeForScore(s.score)}">${s.score}%</span></td>
+    <td>${s.grade}</td>
+    <td>${heatmapHTML(s.heat)}</td>
+    <td>${s.practice}%</td>
+    <td>${s.test}%</td>
+    <td>${s.paper}%</td>
+    <td><span class="badge ${badgeForScore(parseInt(s.current.match(/\\d+/)?.[0]||0))}">${s.current}</span></td>
+    <td>${s.weak}</td>
+    <td>
+      <div class="progressbar"><span style="width:${s.coverage}%"></span></div>
+      <div class="muted">${s.coverage}% covered</div>
+    </td>
+    <td>
+      <div class="flags">
+        ${s.flags.map(f=>`<span class="flag ${flagClass(f)}">${f}</span>`).join("") || `<span class="flag flag-absent">Normal</span>`}
+      </div>
+    </td>
+  `;
+  tbody.appendChild(tr);
+});
+
+function focusStudent(s){
+  document.getElementById("focusName").innerText=s.name;
+  document.getElementById("focusMeta").innerText=`Predicted ${s.grade} · ${s.coverage < 25 ? "Low" : "Medium"} confidence`;
+  document.getElementById("focusScore").innerText=s.score+"%";
+  document.getElementById("focusPractice").innerText=s.practice+"%";
+  document.getElementById("focusTest").innerText=s.test+"%";
+  document.getElementById("focusPaper").innerText=s.paper+"%";
+  document.getElementById("focusHeatmap").innerHTML = s.heat.map((c,i)=>`<span class="mini-box ${c}" title="${heatmapLabels[i]}: ${c}"></span>`).join("");
+
+  const status=document.getElementById("focusStatus");
+  if(s.score<60){status.innerText="At Risk";status.className="badge red";}
+  else if(s.score<75){status.innerText="Monitor";status.className="badge yellow";}
+  else{status.innerText="Strong";status.className="badge green";}
+
+  document.getElementById("focusFlags").innerHTML = `
+    <li>Weakest area: ${s.weak}</li>
+    <li>Current topic score: ${s.current}</li>
+    <li>Coverage: ${s.coverage}% of assigned MCQs</li>
+  `;
+
+  document.getElementById("focusTopics").innerHTML = `
+    <li>
+      <div class="topic-row"><span class="topic-name">${s.weak}</span><span class="badge red">${s.score < 60 ? s.score : 55}%</span></div>
+      <div class="chips">
+        <span class="chip red">Primary Weakness</span>
+        <span class="chip yellow">Needs Review</span>
+        <span class="chip blue">Assign Practice</span>
+      </div>
+    </li>
+    <li>
+      <div class="topic-row"><span class="topic-name">Current Topic</span><span class="badge yellow">${s.current}</span></div>
+      <div class="chips">
+        <span class="chip yellow">Recently Taught</span>
+        <span class="chip red">Check Again</span>
+      </div>
+    </li>
+  `;
+}
+
+focusStudent(students[0]);
+
+document.querySelectorAll(".filter").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".filter").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+  });
+});
+</script>
+
+</body>
+</html>
