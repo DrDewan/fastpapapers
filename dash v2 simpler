@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Student Dashboard</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,Arial,sans-serif}
+body{background:#07111f;color:#f8fafc}
+.page{max-width:1450px;margin:auto;padding:22px}
+.topbar{background:#10203a;border-bottom:1px solid #223b61;padding:12px 22px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:20}
+.badge{background:#38bdf8;color:#02111f;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800}
+.btn{background:#38bdf8;color:#02111f;border:none;padding:8px 12px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer}
+.btn.alt{background:#1e293b;color:#e2e8f0;border:1px solid #334155}
+.header{display:flex;justify-content:space-between;align-items:flex-end;margin:22px 0}
+h1{font-size:26px}
+.small{font-size:13px;color:#94a3b8}
+.grid{display:grid;grid-template-columns:1fr 330px;gap:18px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.card{background:#0f1b2e;border:1px solid #203654;border-radius:18px;padding:16px}
+.card-title{font-size:12px;color:#9fb3cc;margin-bottom:6px}
+.card-value{font-size:26px;font-weight:900}
+.card-note{font-size:12px;color:#9fb3cc;margin-top:5px}
+.hero{background:linear-gradient(135deg,#13294b,#0f1b2e);border:1px solid #28476e;border-radius:22px;padding:20px;margin-bottom:18px;display:flex;justify-content:space-between;gap:20px;align-items:center}
+.hero h2{font-size:24px;margin-bottom:6px}
+.hero p{color:#cbd5e1;font-size:14px}
+.xpbar{height:12px;background:#1e293b;border-radius:999px;overflow:hidden;margin-top:12px}
+.xpbar span{display:block;height:100%;background:linear-gradient(90deg,#38bdf8,#22c55e);width:68%}
+.section-title{font-size:17px;font-weight:900;margin-bottom:10px}
+.study-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.pill{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;margin-top:8px}
+.done{background:rgba(34,197,94,.2);color:#86efac}
+.now{background:rgba(56,189,248,.2);color:#7dd3fc}
+.next{background:rgba(234,179,8,.18);color:#fde68a}
+.topic-board{background:#0f1b2e;border:1px solid #203654;border-radius:22px;padding:16px;margin-bottom:18px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.filter{border:none;background:#172943;color:#cbd5e1;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer}
+.filter.active{background:#38bdf8;color:#02111f}
+.topic-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.topic{background:#101f35;border:1px solid #203654;border-radius:16px;padding:12px;min-height:130px}
+.topic-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.topic-name{font-weight:900;font-size:14px}
+.status-dot{width:12px;height:12px;border-radius:50%}
+.good{background:#22c55e}
+.ok{background:#eab308}
+.help{background:#ef4444}
+.sleepy{background:#3b82f6}
+.empty{background:#64748b}
+.chips{display:flex;flex-direction:column;gap:6px}
+.chip{border-radius:10px;padding:7px 8px;font-size:12px;font-weight:700;display:flex;justify-content:space-between;cursor:pointer}
+.chip:hover{outline:2px solid #38bdf8}
+.chip.good{background:rgba(34,197,94,.16);color:#86efac}
+.chip.ok{background:rgba(234,179,8,.16);color:#fde68a}
+.chip.help{background:rgba(239,68,68,.18);color:#fca5a5}
+.chip.sleepy{background:rgba(59,130,246,.18);color:#93c5fd}
+.right{display:flex;flex-direction:column;gap:14px}
+.quest{background:linear-gradient(135deg,#1d355d,#10203a);border:1px solid #31527c}
+.quest h3{font-size:20px;margin-bottom:8px}
+.quest p{font-size:13px;color:#cbd5e1;margin-bottom:12px}
+.task-list{list-style:none;display:flex;flex-direction:column;gap:9px}
+.task-list li{background:#101f35;border:1px solid #203654;border-radius:14px;padding:11px;font-size:13px}
+.reward-row{display:flex;gap:8px;flex-wrap:wrap}
+.reward{background:#172943;border:1px solid #294461;padding:8px 10px;border-radius:999px;font-size:12px;font-weight:800}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);align-items:center;justify-content:center;z-index:100}
+.modal-box{width:420px;background:#0f1b2e;border:1px solid #294461;border-radius:22px;padding:20px}
+.modal-box h2{margin-bottom:6px}
+.row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #203654;font-size:13px}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+
+@media(max-width:1150px){
+  .grid{grid-template-columns:1fr}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .topic-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:700px){
+  .cards,.study-flow,.topic-grid{grid-template-columns:1fr}
+  .header,.hero{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div><span class="badge">NEW</span> Next class: Kirchhoff’s Laws. Do the quick warm-up before Sunday.</div>
+  <button class="btn alt">Class Discussion</button>
+</div>
+
+<div class="page">
+
+  <div class="header">
+    <div>
+      <h1>Hi Ayaan 👋</h1>
+      <div class="small">AS Physics 9702 · Sunday/Tuesday Batch</div>
+    </div>
+    <div class="small">Last active: Today</div>
+  </div>
+
+  <section class="hero">
+    <div>
+      <h2>Your next mission: Fix D.C. Circuits</h2>
+      <p>You are close. Do 10 focused questions today to unlock your next streak badge.</p>
+      <div class="xpbar"><span></span></div>
+      <div class="small" style="margin-top:7px;">68% to next level</div>
+    </div>
+    <button class="btn">Start 10 Questions</button>
+  </section>
+
+  <section class="cards">
+    <div class="card">
+      <div class="card-title">Current Level</div>
+      <div class="card-value">B</div>
+      <div class="card-note">Target: A</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Questions Done</div>
+      <div class="card-value">312</div>
+      <div class="card-note">Great progress</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Streak</div>
+      <div class="card-value">5🔥</div>
+      <div class="card-note">Keep it alive</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Main Focus</div>
+      <div class="card-value">DC</div>
+      <div class="card-note">Needs practice</div>
+    </div>
+  </section>
+
+  <div class="grid">
+
+    <main>
+
+      <section class="study-flow">
+        <div class="card">
+          <div class="card-title">Last Class</div>
+          <strong>Resistance</strong><br>
+          <button class="btn alt" style="margin-top:10px;">Review</button><br>
+          <span class="pill done">Done</span>
+        </div>
+        <div class="card">
+          <div class="card-title">Now Learning</div>
+          <strong>Kirchhoff’s Laws</strong><br>
+          <button class="btn alt" style="margin-top:10px;">Open Notes</button><br>
+          <span class="pill now">Current</span>
+        </div>
+        <div class="card">
+          <div class="card-title">Next Up</div>
+          <strong>Internal Resistance</strong><br>
+          <button class="btn alt" style="margin-top:10px;">Preview</button><br>
+          <span class="pill next">Next</span>
+        </div>
+      </section>
+
+      <section class="topic-board">
+        <div class="section-title">Topic Map</div>
+
+        <div class="filters">
+          <button class="filter active">All</button>
+          <button class="filter">Needs Help</button>
+          <button class="filter">Revise Soon</button>
+          <button class="filter">Not Tried</button>
+        </div>
+
+        <div class="topic-grid" id="topicGrid"></div>
+      </section>
+
+    </main>
+
+    <aside class="right">
+
+      <div class="card quest">
+        <h3>Today’s Quest 🎯</h3>
+        <p>Complete this and your dashboard will update immediately.</p>
+        <button class="btn">Practice Weak Topics</button>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Do Next</div>
+        <ul class="task-list">
+          <li>⚡ Practice 10 MCQs: Internal Resistance</li>
+          <li>📘 Review notes: Kirchhoff’s Laws</li>
+          <li>✍️ Check one AQ mistake from Electricity</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Badges</div>
+        <div class="reward-row">
+          <span class="reward">🔥 5-day streak</span>
+          <span class="reward">⚡ Circuit Starter</span>
+          <span class="reward">🎯 300 MCQs</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Simple Legend</div>
+        <ul class="task-list">
+          <li>🟢 Good</li>
+          <li>🟡 Almost there</li>
+          <li>🔴 Needs help</li>
+          <li>🔵 Revise soon</li>
+        </ul>
+      </div>
+
+    </aside>
+
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h2 id="mTitle">Topic</h2>
+    <div class="small" id="mSub">Subtopic</div>
+    <div class="row"><span>Status</span><strong id="mStatus"></strong></div>
+    <div class="row"><span>Your score</span><strong id="mScore"></strong></div>
+    <div class="row"><span>What to do</span><strong id="mAction"></strong></div>
+    <div class="actions">
+      <button class="btn alt" onclick="closeModal()">Close</button>
+      <button class="btn">Start Practice</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const topics = [
+  {
+    name:"Kinematics",
+    state:"ok",
+    items:[
+      ["Graphs","ok","68%"],
+      ["SUVAT","good","82%"],
+      ["Projectile","help","45%"]
+    ]
+  },
+  {
+    name:"Dynamics",
+    state:"ok",
+    items:[
+      ["Newton","ok","67%"],
+      ["Momentum","help","59%"],
+      ["Collisions","ok","61%"]
+    ]
+  },
+  {
+    name:"Forces",
+    state:"good",
+    items:[
+      ["Moments","good","77%"],
+      ["Pressure","help","57%"],
+      ["Density","good","88%"]
+    ]
+  },
+  {
+    name:"Energy",
+    state:"good",
+    items:[
+      ["Work","good","81%"],
+      ["Power","ok","66%"],
+      ["Efficiency","help","58%"]
+    ]
+  },
+  {
+    name:"Electricity",
+    state:"help",
+    items:[
+      ["Current","ok","75%"],
+      ["Resistance","ok","62%"],
+      ["I-V Graphs","help","49%"]
+    ]
+  },
+  {
+    name:"D.C. Circuits",
+    state:"help",
+    items:[
+      ["Kirchhoff","help","45%"],
+      ["Internal R","help","41%"],
+      ["Divider","help","53%"]
+    ]
+  },
+  {
+    name:"Waves",
+    state:"sleepy",
+    items:[
+      ["Basics","good","83%"],
+      ["Doppler","help","58%"],
+      ["EM Waves","sleepy","Revise"]
+    ]
+  },
+  {
+    name:"Superposition",
+    state:"help",
+    items:[
+      ["Interference","help","55%"],
+      ["Stationary","help","48%"],
+      ["Grating","ok","66%"]
+    ]
+  },
+  {
+    name:"Skills",
+    state:"ok",
+    items:[
+      ["Calculations","ok","69%"],
+      ["Graphs","help","57%"],
+      ["AQ Writing","help","58%"]
+    ]
+  },
+  {
+    name:"Units",
+    state:"ok",
+    items:[
+      ["SI Units","good","82%"],
+      ["Conversions","ok","64%"],
+      ["Derived","help","50%"]
+    ]
+  }
+];
+
+const labels = {
+  good:"Good",
+  ok:"Almost there",
+  help:"Needs help",
+  sleepy:"Revise soon"
+};
+
+const actions = {
+  good:"Keep it warm",
+  ok:"Do a few more",
+  help:"Start practice",
+  sleepy:"Quick revision"
+};
+
+const grid = document.getElementById("topicGrid");
+
+topics.forEach(topic=>{
+  const div = document.createElement("div");
+  div.className = "topic";
+
+  div.innerHTML = `
+    <div class="topic-head">
+      <div class="topic-name">${topic.name}</div>
+      <div class="status-dot ${topic.state}"></div>
+    </div>
+    <div class="chips">
+      ${topic.items.map(i=>`
+        <div class="chip ${i[1]}" onclick="openModal('${topic.name}','${i[0]}','${labels[i[1]]}','${i[2]}','${actions[i[1]]}')">
+          <span>${i[0]}</span>
+          <span>${i[2]}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+
+  grid.appendChild(div);
+});
+
+function openModal(topic, sub, status, score, action){
+  document.getElementById("mTitle").innerText = topic;
+  document.getElementById("mSub").innerText = sub;
+  document.getElementById("mStatus").innerText = status;
+  document.getElementById("mScore").innerText = score;
+  document.getElementById("mAction").innerText = action;
+  document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal(){
+  document.getElementById("modal").style.display = "none";
+}
+</script>
+
+</body>
+</html>
