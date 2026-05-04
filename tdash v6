@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Teacher Dashboard V5</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,Arial,sans-serif}
+body{background:#f4f7fb;color:#0f172a}
+.topbar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #dbe3ef;padding:12px 22px;display:flex;justify-content:space-between;align-items:center}
+.page{max-width:1780px;margin:auto;padding:22px}
+.btn{background:#2563eb;color:#fff;border:0;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:800;cursor:pointer}
+.btn.alt{background:#fff;color:#334155;border:1px solid #cbd5e1}
+h1{font-size:25px;margin-bottom:4px}
+.small{font-size:12px;color:#64748b}
+.header{display:flex;justify-content:space-between;align-items:flex-end;margin:18px 0}
+.cards{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:14px}
+.card{background:#fff;border:1px solid #dbe3ef;border-radius:16px;padding:13px}
+.card-title{font-size:12px;color:#64748b;margin-bottom:5px}
+.card-value{font-size:23px;font-weight:900}
+.card-note{font-size:12px;color:#64748b;margin-top:4px}
+.rank-strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.rank-chip{background:#fff;border:1px solid #dbe3ef;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:800}
+
+.layout{display:grid;grid-template-columns:700px 1fr;gap:18px;align-items:start}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filter{border:1px solid #dbe3ef;background:#fff;color:#334155;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer}
+.filter.active{background:#2563eb;color:#fff;border-color:#2563eb}
+
+.student-list{background:#fff;border:1px solid #dbe3ef;border-radius:16px;overflow:hidden}
+.list-head{display:grid;grid-template-columns:1.25fr .65fr .8fr .7fr 1fr 1.05fr;padding:10px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:#475569;font-weight:900}
+.student-row{display:grid;grid-template-columns:1.25fr .65fr .8fr .7fr 1fr 1.05fr;gap:8px;padding:10px;border-bottom:1px solid #e2e8f0;align-items:center;cursor:pointer}
+.student-row:hover{background:#f8fafc}
+.student-name{font-weight:900;font-size:13px}
+.trend{font-size:13px;margin-left:5px;font-weight:900}
+.up{color:#16a34a}.flat{color:#ca8a04}.down{color:#dc2626}
+
+.badge{display:inline-block;border-radius:999px;padding:4px 8px;font-size:10.5px;font-weight:900;white-space:nowrap}
+.good{background:#dcfce7;color:#166534}
+.ok{background:#fef3c7;color:#92400e}
+.weak{background:#fee2e2;color:#991b1b}
+.info{background:#dbeafe;color:#1e40af}
+.grey{background:#e2e8f0;color:#475569}
+.ptm{background:#f3e8ff;color:#6b21a8}
+.score{font-weight:900}
+.note-mini{font-size:11px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+
+.flags{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.flag{font-size:10.5px;border-radius:7px;padding:4px 6px;font-weight:900;white-space:nowrap}
+
+.row-heatmap{display:grid;grid-template-columns:repeat(12,12px);gap:3px}
+.box{width:12px;height:12px;border-radius:3px}
+.box.good{background:#22c55e}
+.box.ok{background:#eab308}
+.box.weak{background:#ef4444}
+.box.info{background:#3b82f6}
+.box.grey{background:#94a3b8}
+.heat-label{font-size:10px;color:#64748b;margin-top:4px}
+
+.side{position:sticky;top:74px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 90px);overflow:auto;padding-right:2px}
+.focus-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.focus-name{font-size:22px;font-weight:900}
+.metric-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.metric{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:9px}
+.metric strong{display:block;font-size:18px;margin-top:3px}
+.section-title{font-size:14px;font-weight:900;margin-bottom:8px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.list{list-style:none;display:flex;flex-direction:column;gap:7px}
+.list li{background:#f8fafc;border:1px solid #e2e8f0;border-radius:11px;padding:9px;font-size:12.5px}
+.test-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.test-date{font-size:11px;color:#64748b;margin-top:2px}
+.attendance-strip{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:6px}
+.att-day{height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:900;cursor:pointer}
+.present{background:#dcfce7;color:#166534}
+.absent{background:#fee2e2;color:#991b1b}
+.late{background:#fef3c7;color:#92400e}
+
+.topic-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.topic-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px;font-size:12px}
+.dot{width:12px;height:12px;border-radius:3px}
+.dot.good{background:#22c55e}.dot.ok{background:#eab308}.dot.weak{background:#ef4444}.dot.info{background:#3b82f6}.dot.grey{background:#94a3b8}
+
+.area-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px;font-size:12px}
+.note{background:#f8fafc;border:1px solid #e2e8f0;border-radius:11px;padding:9px;font-size:12.5px}
+.note-date{font-size:11px;color:#64748b;margin-bottom:3px}
+.textarea{width:100%;height:58px;border:1px solid #cbd5e1;border-radius:11px;padding:9px;resize:none;font-size:13px;margin-top:8px}
+
+.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100;align-items:center;justify-content:center}
+.modal-box{background:white;width:440px;border-radius:18px;border:1px solid #dbe3ef;padding:18px}
+.modal-box h2{font-size:20px;margin-bottom:8px}
+.modal-list{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.modal-list div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:9px;font-size:13px}
+
+@media(max-width:1350px){
+  .cards{grid-template-columns:repeat(3,1fr)}
+  .layout{grid-template-columns:1fr}
+  .side{position:static;max-height:none}
+}
+@media(max-width:750px){
+  .cards,.metric-grid,.three-col,.two-col,.topic-grid{grid-template-columns:1fr}
+  .header{flex-direction:column;align-items:flex-start;gap:8px}
+  .student-list{overflow:auto}
+  .list-head,.student-row{min-width:700px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div><strong>Teacher Dashboard</strong> <span class="small">· AS Physics 9702 · Sunday/Tuesday Batch</span></div>
+  <div>
+    <button class="btn alt">Study Flow</button>
+    <button class="btn alt">Attendance</button>
+    <button class="btn alt">Create Test</button>
+    <button class="btn">Send Update</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="header">
+    <div>
+      <h1>Batch Overview</h1>
+      <div class="small">18 students · Current topic: <strong>Kirchhoff’s Laws</strong> · Next: Internal Resistance</div>
+    </div>
+    <div class="small">Last synced today, 11:20 AM</div>
+  </div>
+
+  <section class="cards">
+    <div class="card"><div class="card-title">Students</div><div class="card-value">18</div><div class="card-note">active</div></div>
+    <div class="card"><div class="card-title">Batch Avg</div><div class="card-value">64%</div><div class="card-note">latest tests</div></div>
+    <div class="card"><div class="card-title">Avg Attendance</div><div class="card-value">81%</div><div class="card-note">since enrollment</div></div>
+    <div class="card"><div class="card-title">Low Latest Score</div><div class="card-value">5</div><div class="card-note">below 55%</div></div>
+    <div class="card"><div class="card-title">PTM Flags</div><div class="card-value">3</div><div class="card-note">active</div></div>
+    <div class="card"><div class="card-title">Topics Done</div><div class="card-value">7 / 12</div><div class="card-note">5 left</div></div>
+  </section>
+
+  <div class="rank-strip">
+    <span class="rank-chip">Strongest: Kinematics</span>
+    <span class="rank-chip">Weakest: D.C. Circuits</span>
+    <span class="rank-chip">Low SAQ: 5 students</span>
+    <span class="rank-chip">Attendance concern: 4 students</span>
+    <span class="rank-chip">Current topic risk: 7 students</span>
+  </div>
+
+  <div class="layout">
+
+    <main>
+      <div class="filters">
+        <button class="filter active">All</button>
+        <button class="filter">Declining</button>
+        <button class="filter">Low Latest</button>
+        <button class="filter">Low MCQ</button>
+        <button class="filter">Low SAQ</button>
+        <button class="filter">Low Attendance</button>
+        <button class="filter">PTM</button>
+      </div>
+
+      <section class="student-list">
+        <div class="list-head">
+          <div>Student</div>
+          <div>Latest</div>
+          <div>MCQ / SAQ</div>
+          <div>Attendance</div>
+          <div>Topic Map</div>
+          <div>Note / Flags</div>
+        </div>
+        <div id="rows"></div>
+      </section>
+    </main>
+
+    <aside class="side">
+
+      <div class="card">
+        <div class="focus-top">
+          <div>
+            <div class="focus-name" id="focusName">Ayaan Rahman</div>
+            <div class="small" id="focusMeta">Declining · Latest score 58%</div>
+          </div>
+          <span class="badge ptm" id="focusBadge">PTM</span>
+        </div>
+
+        <div class="metric-grid">
+          <div class="metric"><span class="small">Latest</span><strong id="fLatest">58%</strong></div>
+          <div class="metric"><span class="small">MCQ Avg</span><strong id="fMcq">62%</strong></div>
+          <div class="metric"><span class="small">SAQ Avg</span><strong id="fSaq">54%</strong></div>
+          <div class="metric"><span class="small">Month Att.</span><strong id="fMonth">72%</strong></div>
+          <div class="metric"><span class="small">All Att.</span><strong id="fAll">81%</strong></div>
+        </div>
+      </div>
+
+      <div class="three-col">
+        <div class="card">
+          <div class="section-title">Recent Tests</div>
+          <ul class="list" id="focusMarks"></ul>
+        </div>
+
+        <div class="card">
+          <div class="section-title">Attendance</div>
+          <div class="small">Click any box for dates</div>
+          <div class="attendance-strip" id="focusAttendance"></div>
+          <button class="btn alt" style="width:100%;margin-top:8px" onclick="openAttendanceModal()">View Dates</button>
+        </div>
+
+        <div class="card">
+          <div class="section-title">Flags</div>
+          <ul class="list" id="focusFlags"></ul>
+          <button class="btn alt" style="width:100%;margin-top:8px;">Manage Flags</button>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="section-title">Weak Areas</div>
+          <div id="focusWeak"></div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">Strong Areas</div>
+          <div id="focusStrong"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Topic & Skill Scores</div>
+        <div class="topic-grid" id="focusTopics"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Teacher Notes</div>
+        <div id="focusNotes"></div>
+        <textarea class="textarea" placeholder="Add short note..."></textarea>
+        <button class="btn" style="width:100%;margin-top:8px;">Save Note</button>
+      </div>
+
+    </aside>
+
+  </div>
+</div>
+
+<div class="modal" id="attModal">
+  <div class="modal-box">
+    <h2 id="attTitle">Attendance Dates</h2>
+    <div class="small">Present / absent dates for selected student</div>
+    <div class="modal-list" id="attDates"></div>
+    <button class="btn" style="width:100%;margin-top:14px" onclick="closeAttendanceModal()">Close</button>
+  </div>
+</div>
+
+<script>
+const students=[
+{
+name:"Ayaan Rahman",trend:"down",latest:58,mcq:62,saq:54,attMonth:72,attAll:81,
+note:"Needs more written practice. Speak to guardian if no improvement.",
+flags:["PTM","Low SAQ"],
+topics:[
+["Physical Quantities",72,"ok"],["Kinematics",76,"good"],["Dynamics",63,"ok"],["Forces",81,"good"],["Energy",69,"ok"],["Electricity",55,"weak"],
+["D.C. Circuits",42,"weak"],["Waves",78,"good"],["Superposition",65,"ok"],["Calculation",61,"ok"],["Graphs",52,"weak"],["SAQ Writing",48,"weak"]
+],
+tests:[["18 Apr 2026","D.C. Circuits Test",58],["11 Apr 2026","SAQ Paper 4",52],["04 Apr 2026","Mixed MCQ Test",64]],
+attendance:[["01 Apr","present"],["03 Apr","present"],["06 Apr","absent"],["08 Apr","present"],["10 Apr","late"],["13 Apr","present"],["15 Apr","absent"],["17 Apr","present"]],
+notes:[["Apr 28","Weak SAQ structure."],["Apr 21","Missed assigned MCQs twice."]]
+},
+{
+name:"Sarah Zaheen",trend:"up",latest:74,mcq:78,saq:70,attMonth:96,attAll:92,
+note:"Improving. Keep giving mixed questions.",flags:["Good"],
+topics:[
+["Physical Quantities",82,"good"],["Kinematics",84,"good"],["Dynamics",71,"ok"],["Forces",80,"good"],["Energy",79,"good"],["Electricity",69,"ok"],
+["D.C. Circuits",66,"ok"],["Waves",82,"good"],["Superposition",64,"ok"],["Calculation",68,"ok"],["Graphs",55,"weak"],["SAQ Writing",70,"ok"]
+],
+tests:[["18 Apr 2026","D.C. Circuits Test",74],["11 Apr 2026","SAQ Paper 4",70],["04 Apr 2026","Mixed MCQ Test",81]],
+attendance:[["01 Apr","present"],["03 Apr","present"],["06 Apr","present"],["08 Apr","present"],["10 Apr","present"],["13 Apr","present"],["15 Apr","late"],["17 Apr","present"]],
+notes:[["Apr 28","Good improvement in written work."]]
+},
+{
+name:"Tehzeeb Tahsin",trend:"down",latest:46,mcq:52,saq:48,attMonth:48,attAll:65,
+note:"Poor attendance and low practice. PTM recommended.",flags:["PTM","Attendance","Low MCQ"],
+topics:[
+["Physical Quantities",61,"ok"],["Kinematics",49,"weak"],["Dynamics",46,"weak"],["Forces",60,"ok"],["Energy",47,"weak"],["Electricity",44,"weak"],
+["D.C. Circuits",35,"weak"],["Waves",62,"ok"],["Superposition",0,"grey"],["Calculation",41,"weak"],["Graphs",38,"weak"],["SAQ Writing",42,"weak"]
+],
+tests:[["18 Apr 2026","D.C. Circuits Test",46],["11 Apr 2026","SAQ Paper 4",48],["04 Apr 2026","Mixed MCQ Test",51]],
+attendance:[["01 Apr","absent"],["03 Apr","present"],["06 Apr","absent"],["08 Apr","late"],["10 Apr","absent"],["13 Apr","present"],["15 Apr","absent"],["17 Apr","present"]],
+notes:[["Apr 27","Missed test. Needs urgent follow-up."],["Apr 19","Low practice despite reminders."]]
+},
+{
+name:"Mishkat Farzad",trend:"up",latest:84,mcq:84,saq:81,attMonth:100,attAll:98,
+note:"Strong. Give harder mixed-topic questions.",flags:["Strong"],
+topics:[
+["Physical Quantities",88,"good"],["Kinematics",90,"good"],["Dynamics",84,"good"],["Forces",86,"good"],["Energy",82,"good"],["Electricity",80,"good"],
+["D.C. Circuits",70,"ok"],["Waves",85,"good"],["Superposition",82,"good"],["Calculation",87,"good"],["Graphs",71,"ok"],["SAQ Writing",72,"ok"]
+],
+tests:[["18 Apr 2026","D.C. Circuits Test",84],["11 Apr 2026","SAQ Paper 4",81],["04 Apr 2026","Mixed MCQ Test",88]],
+attendance:[["01 Apr","present"],["03 Apr","present"],["06 Apr","present"],["08 Apr","present"],["10 Apr","present"],["13 Apr","present"],["15 Apr","present"],["17 Apr","present"]],
+notes:[["Apr 29","Ready for harder papers."]]
+}
+];
+
+let selected = students[0];
+
+function scoreClass(n){return n>=75?"good":n>=60?"ok":n===0?"grey":"weak"}
+function trendIcon(t){return t==="up"?'<span class="trend up">▲</span>':t==="down"?'<span class="trend down">▼</span>':'<span class="trend flat">→</span>'}
+function trendText(t){return t==="up"?"Improving":t==="down"?"Declining":"Stable"}
+function flagHTML(flags){return flags.map(f=>`<span class="flag ${f==="PTM"?"ptm":f==="Strong"||f==="Good"?"good":f==="Attendance"||f==="Low MCQ"||f==="Low SAQ"?"weak":"ok"}">${f}</span>`).join("")}
+function heatHTML(topics){return `<div class="row-heatmap">${topics.map(t=>`<span class="box ${t[2]}" title="${t[0]}: ${t[1] || "No data"}%"></span>`).join("")}</div><div class="heat-label">12 topics/skills</div>`}
+
+const rows=document.getElementById("rows");
+
+students.forEach(s=>{
+  const row=document.createElement("div");
+  row.className="student-row";
+  row.onclick=()=>focus(s);
+
+  row.innerHTML=`
+    <div>
+      <div class="student-name">${s.name} ${trendIcon(s.trend)}</div>
+      <div class="small">${trendText(s.trend)}</div>
+    </div>
+
+    <div>
+      <div class="score">${s.latest}%</div>
+      <div class="small">latest</div>
+    </div>
+
+    <div>
+      <span class="badge ${scoreClass(s.mcq)}">${s.mcq}%</span>
+      <span class="badge ${scoreClass(s.saq)}">${s.saq}%</span>
+    </div>
+
+    <div>
+      <span class="badge ${scoreClass(s.attMonth)}">${s.attMonth}%</span>
+      <div class="small">month</div>
+    </div>
+
+    <div>${heatHTML(s.topics)}</div>
+
+    <div>
+      <div class="note-mini">${s.note}</div>
+      <div class="flags">${flagHTML(s.flags)}</div>
+    </div>
+  `;
+
+  rows.appendChild(row);
+});
+
+function focus(s){
+  selected=s;
+  document.getElementById("focusName").innerHTML=s.name+" "+trendIcon(s.trend);
+  document.getElementById("focusMeta").innerText=`${trendText(s.trend)} · Latest score ${s.latest}%`;
+  document.getElementById("fLatest").innerText=s.latest+"%";
+  document.getElementById("fMcq").innerText=s.mcq+"%";
+  document.getElementById("fSaq").innerText=s.saq+"%";
+  document.getElementById("fMonth").innerText=s.attMonth+"%";
+  document.getElementById("fAll").innerText=s.attAll+"%";
+
+  const badge=document.getElementById("focusBadge");
+  if(s.flags.includes("PTM")){badge.innerText="PTM";badge.className="badge ptm";}
+  else if(s.flags.includes("Strong")){badge.innerText="Strong";badge.className="badge good";}
+  else{badge.innerText=trendText(s.trend);badge.className="badge "+scoreClass(s.latest);}
+
+  document.getElementById("focusMarks").innerHTML=s.tests.map(t=>`
+    <li class="test-row">
+      <div>
+        <strong>${t[1]}</strong>
+        <div class="test-date">${t[0]}</div>
+      </div>
+      <span class="badge ${scoreClass(t[2])}">${t[2]}%</span>
+    </li>
+  `).join("");
+
+  document.getElementById("focusAttendance").innerHTML=s.attendance.map((a,i)=>`
+    <div class="att-day ${a[1]==="present"?"present":a[1]==="late"?"late":"absent"}" title="${a[0]}: ${a[1]}" onclick="openAttendanceModal()">${i+1}</div>
+  `).join("");
+
+  const weakTopics = s.topics.filter(t => t[2] === "weak").sort((a,b)=>a[1]-b[1]);
+  const strongTopics = s.topics.filter(t => t[2] === "good").sort((a,b)=>b[1]-a[1]);
+
+  document.getElementById("focusWeak").innerHTML=weakTopics.map(t=>`
+    <div class="area-row">
+      <span>${t[0]}</span>
+      <span class="badge weak">${t[1]}%</span>
+    </div>
+  `).join("") || `<div class="area-row"><span>No major weak area</span><span class="badge good">Good</span></div>`;
+
+  document.getElementById("focusStrong").innerHTML=strongTopics.map(t=>`
+    <div class="area-row">
+      <span>${t[0]}</span>
+      <span class="badge good">${t[1]}%</span>
+    </div>
+  `).join("") || `<div class="area-row"><span>No strong area yet</span><span class="badge grey">Low data</span></div>`;
+
+  document.getElementById("focusTopics").innerHTML=s.topics.map(t=>`
+    <div class="topic-row">
+      <span>${t[0]}</span>
+      <span class="badge ${t[2]}">${t[1] ? t[1]+"%" : "No data"}</span>
+      <span class="dot ${t[2]}"></span>
+    </div>
+  `).join("");
+
+  document.getElementById("focusNotes").innerHTML=s.notes.map(n=>`
+    <div class="note">
+      <div class="note-date">${n[0]}</div>
+      ${n[1]}
+    </div>
+  `).join("");
+
+  document.getElementById("focusFlags").innerHTML=s.flags.map(f=>`
+    <li>${f} <span class="badge grey" style="float:right;">Active</span></li>
+  `).join("");
+}
+
+function openAttendanceModal(){
+  document.getElementById("attTitle").innerText=`Attendance Dates — ${selected.name}`;
+  document.getElementById("attDates").innerHTML=selected.attendance.map(a=>`
+    <div>
+      <strong>${a[0]}</strong>
+      <span class="badge ${a[1]==="present"?"good":a[1]==="late"?"ok":"weak"}" style="float:right">${a[1]}</span>
+    </div>
+  `).join("");
+  document.getElementById("attModal").style.display="flex";
+}
+
+function closeAttendanceModal(){
+  document.getElementById("attModal").style.display="none";
+}
+
+focus(students[0]);
+
+document.querySelectorAll(".filter").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".filter").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+  });
+});
+</script>
+
+</body>
+</html>
